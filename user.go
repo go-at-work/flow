@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	errUserNameTaken = errors.New("username already taken")
-	errEmailTaken    = errors.New("email already taken")
+	ErrUserNameTaken = errors.New("username already taken")
+	ErrEmailTaken    = errors.New("email already taken")
 )
 
 type UserRepository interface {
