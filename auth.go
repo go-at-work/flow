@@ -18,13 +18,34 @@ type RegisterInput struct {
 	ConfirmPassword string
 }
 
+type LoginInput struct {
+	Email    string
+	Password string
+}
+
 type AuthService interface {
 	Register(ctx context.Context, input RegisterInput) (AuthResponse error)
+	Login(ctx context.Context, input LoginInput) (AuthResponse error)
 }
 
 type AuthResponse struct {
 	AccessToken string
 	User        User
+}
+
+func (in LoginInput) Sanitize() {
+	in.Email = strings.TrimSpace(in.Email)
+	in.Email = strings.ToLower(in.Email)
+}
+
+func (in LoginInput) Validate() error {
+
+	if len(in.Password) < 1 {
+		return fmt.Errorf("%w: password required", NewValidationError)
+	}
+
+	return nil
+
 }
 
 func (in RegisterInput) Sanitize() {
