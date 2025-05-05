@@ -9,6 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var passwordCost = bcrypt.MinCost
+
 type AuthService struct {
 	UserRepository flow.UserRepository
 }
@@ -42,7 +44,7 @@ func (s *AuthService) Register(ctx context.Context, input flow.RegisterInput) (f
 		Email:    input.Email,
 	}
 
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), passwordCost)
 	if err != nil {
 		return flow.AuthResponse{}, fmt.Errorf("failed to hash password: %w", err)
 	}
