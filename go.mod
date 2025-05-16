@@ -3,14 +3,18 @@ module github.com/arisromil/flow
 go 1.24.2
 
 require (
+	github.com/99designs/gqlgen v0.17.73
+	github.com/georgysavva/scany v1.2.3
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.10.0
+	github.com/vektah/gqlparser/v2 v2.5.26
 )
 
 require (
-	github.com/georgysavva/scany v1.2.3 // indirect
+	github.com/agnivade/levenshtein v1.2.1 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -22,6 +26,7 @@ require (
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/jackc/puddle v1.3.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
