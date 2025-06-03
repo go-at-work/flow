@@ -18,6 +18,8 @@ type TokenService struct {
 	Conf *config.Config
 }
 
+var now = time.Now
+
 func NewTokenService(conf *config.Config) *TokenService {
 	return &TokenService{
 		Conf: conf,
@@ -103,11 +105,11 @@ func setDefaultToken(t jwtGo.Token, user flow.User, lifetime time.Duration, conf
 		return fmt.Errorf("failed to set issuer key: %w", err)
 	}
 
-	if err := t.Set(jwtGo.IssuedAtKey, time.Now().Unix()); err != nil {
+	if err := t.Set(jwtGo.IssuedAtKey, now().Unix()); err != nil {
 		return fmt.Errorf("failed to set issued at key: %w", err)
 	}
 
-	if err := t.Set(jwtGo.ExpirationKey, time.Now().Add(lifetime).Unix()); err != nil {
+	if err := t.Set(jwtGo.ExpirationKey, now().Add(lifetime).Unix()); err != nil {
 		return fmt.Errorf("failed to set expired at key: %w", err)
 	}
 
