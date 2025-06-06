@@ -10,6 +10,7 @@ import (
 	"github.com/arisromil/flow/config"
 	"github.com/arisromil/flow/domain"
 	"github.com/arisromil/flow/graph"
+	"github.com/arisromil/flow/jwt"
 	"github.com/arisromil/flow/postgres"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -35,14 +36,20 @@ func main() {
 	router.Use(middleware.Timeout(time.Second * 60))
 
 	userRepo := postgres.NewUserRepository(db)
+	authTokenService := jwt.NewTokenService(conf)
 	authService := domain.NewAuthService(userRepo)
 
+	router.Use(authMiddleware(authTokenService))
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	router.Handle("/query", handler.NewDefaultServer(graph.NewExecutableSchema(
-		graph.Config{Resolvers: &graph.Resolver{
-			AuthService: authService,
-		}},
-	)))
+	router.Handle("/query", handler.NewDefaultServer(
+		graph.NewExecutableSchema(
+			graph.Config{
+				Resolvers: &graph.Resolver{
+					AuthService: authService,
+				},
+			},
+		),
+	))
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 
