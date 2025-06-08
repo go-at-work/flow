@@ -16,5 +16,12 @@ func mapUser(user flow.User) *User {
 }
 
 func (r *queryResolver) Me(ctx context.Context) (*User, error) {
-	panic("not implemented")
+	userId, err := flow.GetUserIdFromContext(ctx)
+	if err != nil {
+		return nil, flow.ErrUnAuthenticated
+	}
+	return mapUser(flow.User{
+		ID: userId,
+	}), nil
+
 }
