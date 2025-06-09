@@ -12,12 +12,14 @@ import (
 var passwordCost = bcrypt.MinCost
 
 type AuthService struct {
-	UserRepository flow.UserRepository
+	AuthTokenService flow.AuthTokenService
+	UserRepository   flow.UserRepository
 }
 
-func NewAuthService(userRepository flow.UserRepository) *AuthService {
+func NewAuthService(userRepository flow.UserRepository, ats flow.AuthTokenService) *AuthService {
 	return &AuthService{
-		UserRepository: userRepository,
+		AuthTokenService: ats,
+		UserRepository:   userRepository,
 	}
 }
 
@@ -30,10 +32,6 @@ func (s *AuthService) Register(ctx context.Context, input flow.RegisterInput) (f
 	if _, err := s.UserRepository.GetbyUsername(ctx, input.Username); !errors.Is(err, flow.ErrNotFound) {
 		return flow.AuthResponse{}, flow.ErrUserNameTaken
 	}
-
-	var (
-		errUserNameTaken = errors.New("username is already taken")
-	)
 
 	if _, err := s.UserRepository.GetbyEmail(ctx, input.Email); !errors.Is(err, flow.ErrNotFound) {
 		return flow.AuthResponse{}, flow.ErrEmailTaken
@@ -56,8 +54,13 @@ func (s *AuthService) Register(ctx context.Context, input flow.RegisterInput) (f
 		return flow.AuthResponse{}, fmt.Errorf("failed to create user: %w", err)
 	}
 
+	accessToken, err := s.AuthTokenService.CreateToken(ctx, user)
+	if err != nil {
+		return flow.AuthResponse{}, flow.ErrGenAccessToken
+	}
+
 	return flow.AuthResponse{
-		AccessToken: "dummy_token",
+		AccessToken: accessToken,
 		User:        user,
 	}, nil
 }
@@ -71,16 +74,22 @@ func (s *AuthService) Login(ctx context.Context, input flow.LoginInput) (flow.Au
 	if err != nil {
 		switch {
 		case errors.Is(err, flow.ErrNotFound):
-			return flow.AuthResponse{}, flow.ErrBadCredentiaLS
+			return flow.AuthResponse{}, flow.ErrBadCredentials
 		default:
 			return flow.AuthResponse{}, err
 		}
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return flow.AuthResponse{}, flow.ErrBadCredentiaLS
+		return flow.AuthResponse{}, flow.ErrBadCredentials
 	}
+
+	accessToken, err := s.AuthTokenService.CreateToken(ctx, user)
+	if err != nil {
+		return flow.AuthResponse{}, flow.ErrGenAccessToken
+	}
+
 	return flow.AuthResponse{
-		AccessToken: "dummy_token",
+		AccessToken: accessToken,
 		User:        user,
 	}, nil
 }
