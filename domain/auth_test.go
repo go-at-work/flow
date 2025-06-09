@@ -32,7 +32,11 @@ func TestAuthService_Register(t *testing.T) {
 			Username: validInput.Username,
 			Email:    validInput.Email}, nil)
 
-		service := NewAuthService(userRepo)
+		authTokenService := &mocks.authTokenService{}
+
+		authTokenService.On("CreateToken", mock.Anything, mock.Anything).Return("validaccesstoken", nil)
+
+		service := NewAuthService(userRepo, authTokenService)
 
 		res, err := service.Register(context.Background(), validInput)
 
@@ -65,7 +69,9 @@ func TestAuthService_Login(t *testing.T) {
 			Password: faker.Password,
 		}, nil)
 
-		service := NewAuthService(userRepo)
+		authTokenService := &mocks.authTokenService{}
+		authTokenService.On("CreateToken", mock.Anything, mock.Anything).Return("validaccesstoken", nil)
+		service := NewAuthService(userRepo, authTokenService)
 
 		_, err := service.Login(ctx, validInput)
 		require.NoError(t, err)
@@ -84,7 +90,8 @@ func TestAuthService_Login(t *testing.T) {
 			Password: faker.Password,
 		}, nil)
 
-		service := NewAuthService(userRepo)
+		authTokenService := &mocks.authTokenService{}
+		service := NewAuthService(userRepo, authTokenService)
 
 		validInput.Password = "wrongpasswordsomething"
 
@@ -102,7 +109,8 @@ func TestAuthService_Login(t *testing.T) {
 
 		userRepo.On("GetByEmail", mock.Anything, mock.Anything).Return(flow.User{}, flow.ErrNotFound)
 
-		service := NewAuthService(userRepo)
+		authTokenService := &mocks.authTokenService{}
+		service := NewAuthService(userRepo, authTokenService)
 
 		_, err := service.Login(ctx, validInput)
 		require.ErrorIs(t, err, flow.ErrBadCredentials)
@@ -118,7 +126,8 @@ func TestAuthService_Login(t *testing.T) {
 
 		userRepo.On("GetByEmail", mock.Anything, mock.Anything).Return(flow.User{}, errors.New("something went wrong"))
 
-		service := NewAuthService(userRepo)
+		authTokenService := &mocks.authTokenService{}
+		service := NewAuthService(userRepo, authTokenService)
 
 		_, err := service.Login(ctx, validInput)
 		require.Error(t, err)
@@ -132,13 +141,14 @@ func TestAuthService_Login(t *testing.T) {
 
 		userRepo := &mocks.userRepo{}
 
-		service := NewAuthService(userRepo)
+		authTokenService := &mocks.authTokenService{}
+		service := NewAuthService(userRepo, authTokenService)
 
 		_, err := service.Login(ctx, flow.LoginInput{
 			Email:    "invalidemail",
 			Password: "",
 		})
-		require.Error(t, err, flow.ErrValidation)
+		require.Error(t, err, flow.ErrBadCredentials)
 
 		userRepo.AssertExpectations(t)
 
