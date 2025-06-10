@@ -16,8 +16,11 @@ import (
 var (
 	conf        *config.Config
 	db          *postgres.DB
+	authTokenService flow.AuthTokenService
 	authService flow.AuthService
+	tweetService flow.TweetService
 	userRepo    flow.UserRepository
+	tweetRepo   flow.TweetRepository
 )
 
 func TestMain(m *testing.M) {
@@ -41,10 +44,13 @@ func TestMain(m *testing.M) {
     }
 
 	userRepo = postgres.NewUserRepo(db)
+	tweetRepo = postgres.NewTweetRepo(db)
 
-	authService.NewAuthService(userRepo)
+	authTokenService = jwt.NewTokenService(conf)
+	authService = NewAuthService(userRepo,authTokenService)
+tweetService = NewTweetService(tweetRepo)
+
 	os.Exit(t.Run())
 
-	// This is a placeholder for the main function.
-	// In a real-world scenario, this would be the entry point of the application.
+	
 }
