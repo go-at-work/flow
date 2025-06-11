@@ -37,7 +37,7 @@ func main() {
 
 	userRepo := postgres.NewUserRepository(db)
 	authTokenService := jwt.NewTokenService(conf)
-	authService := domain.NewAuthService(userRepo)
+	authService := domain.NewAuthService(userRepo, authTokenService)
 
 	router.Use(authMiddleware(authTokenService))
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
