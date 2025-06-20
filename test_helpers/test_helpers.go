@@ -31,11 +31,20 @@ func CreateUser(ctx context.Context, t *testing.T, userRepo flow.UserRepository)
 	return userID
 }
 
-func LoginUser(ctx context.Context, t *testing.T, userID flow.User) context.Context {
+func createTweet(ctx context.Context, t *testing.T, tweetRepo flow.TweetRepository, forUser string) flow.Tweet {
 	t.Helper()
 
-	token, err := userRepo.Login(ctx, userID)
-	require.NoError(t, err, "failed to login user")
+	tweet, err := tweetRepo.CreateTweet(ctx, flow.Tweet{
+		Body:   faker.RandomString(100),
+		UserID: forUser,
+	})
+	require.NoError(t, err, "failed to create tweet")
 
-	return flow.PutUserIdToContext(ctx, token.Sub)
+	return tweet
+}
+
+func LoginUser(ctx context.Context, t *testing.T, user flow.User) context.Context {
+	t.Helper()
+
+	return flow.PutUserIdToContext(ctx, user.ID)
 }
