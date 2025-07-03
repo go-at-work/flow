@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/arisromil/flow/uuid"
 )
 
 func init() {
@@ -36,6 +38,10 @@ func RandInt(min, max int) int {
 
 func Username() string {
 	return fmt.Sprintf("user%s", RandomString(RandInt(2, 10)))
+}
+
+func UUID() string {
+	return uuid.GenerateUUID()
 }
 
 func Email() string {
