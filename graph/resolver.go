@@ -12,7 +12,8 @@ import (
 //go:generate go run github.com/99designs/gqlgen generate
 
 type Resolver struct {
-	AuthService flow.AuthService
+	AuthService  flow.AuthService
+	TweetService flow.TweetService
 }
 
 type queryResolver struct {
