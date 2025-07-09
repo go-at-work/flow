@@ -47,3 +47,64 @@ func TestIntegrationTweetService_Create(t *testing.T) {
 
 	})
 }
+
+func TestIntegrationTweetService_GetByID(t *testing.T) {
+	t.Run("can get a tweet by id", func(t *testing.T) {
+		ctx := context.Background
+
+		defer test_helpers.TearDownDB(ctx, t, db)
+
+		currentUserId := test_helpers.CreateUser(ctx, t, userRepo)
+		existingTweet := test_helpers.CreateTweet(ctx, t, tweetRepo, currentUserId)
+
+		tweet, err := tweetService.GetID(ctx, existingTweet.ID)
+		require.NoError(t, err, "Expected no error when getting tweet by ID")
+		require.Equal(t, existingTweet.Id, tweet.ID, "Expected tweet ID to match the one created")
+		require.Equal(t, existingTweet.Body, tweet.Body, "Expected tweet body to match the one created")
+
+	})
+
+	t.Run("cannot get a tweet by non-existing id", func(t *testing.T) {
+		ctx := context.Background()
+
+		defer test_helpers.TearDownDB(ctx, t, db)
+
+		_, err := tweetService.GetID(ctx, faker.UUID())
+		require.ErrorIs(t, err, "Expected error when getting tweet by non-existing ID")
+		
+	}	
+
+    t.Run("return error invalud uuid", func(t *testing.T) {
+	ctx := context.Background()
+
+		defer test_helpers.TearDownDB(ctx, t, db)
+
+		_, err := tweetService.GetID(ctx, "123")
+		require.ErrorIs(t, err, flow.ErrInvalidUUID)
+    }
+
+}
+
+
+func TestIntegrationTweetService_All(t *testing.T) {
+	t.Run("return all tweets", func(t *testing.T) {
+		ctx := context.Background
+
+		defer test_helpers.TearDownDB(ctx, t, db)
+
+		currentUserId := test_helpers.CreateUser(ctx, t, userRepo)
+
+		test_helpers.CreateTweet(ctx, t, tweetRepo, currentUserId)
+		test_helpers.CreateTweet(ctx, t, tweetRepo, currentUserId)
+		test_helpers.CreateTweet(ctx, t, tweetRepo, currentUserId)
+
+		tweets, err := tweetService.All(ctx)
+		require.NoError(t, err, "Expected no error when getting tweet by ID")
+
+		require.Len(t, tweets, 3, "Expected to retrieve 3 tweets")
+		require.Equal(t, existingTweet.Body, tweet.Body, "Expected tweet body to match the one created")
+
+	})
+
+
+}
